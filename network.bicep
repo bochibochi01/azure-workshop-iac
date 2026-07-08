@@ -10,13 +10,13 @@ param webSubnetName string = 'subnet-web'
 @description('DB Subnet Name')
 param dbSubnetName string = 'subnet-db'
 
-@description('NSG Name')
+@description('Network Security Group Name')
 param nsgName string = 'nsg-workshop'
 
 @description('Public IP Name')
 param publicIpName string = 'pip-workshop'
 
-@description('NIC Name')
+@description('Network Interface Name')
 param nicName string = 'nic-workshop'
 
 //
@@ -26,30 +26,42 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2023-09-01' = {
   name: nsgName
   location: location
 
+  tags: {
+    Environment: 'Workshop'
+    Application: 'SpringBoot'
+  }
+
   properties: {
     securityRules: [
       {
         name: 'Allow-SSH'
+
         properties: {
           priority: 100
           protocol: 'Tcp'
           access: 'Allow'
           direction: 'Inbound'
+
           sourceAddressPrefix: '*'
           sourcePortRange: '*'
+
           destinationAddressPrefix: '*'
           destinationPortRange: '22'
         }
       }
+
       {
         name: 'Allow-App8080'
+
         properties: {
           priority: 110
           protocol: 'Tcp'
           access: 'Allow'
           direction: 'Inbound'
+
           sourceAddressPrefix: '*'
           sourcePortRange: '*'
+
           destinationAddressPrefix: '*'
           destinationPortRange: '8080'
         }
@@ -65,6 +77,11 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
   name: vnetName
   location: location
 
+  tags: {
+    Environment: 'Workshop'
+    Application: 'SpringBoot'
+  }
+
   properties: {
     addressSpace: {
       addressPrefixes: [
@@ -75,15 +92,19 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-09-01' = {
     subnets: [
       {
         name: webSubnetName
+
         properties: {
           addressPrefix: '10.0.1.0/24'
+
           networkSecurityGroup: {
             id: nsg.id
           }
         }
       }
+
       {
         name: dbSubnetName
+
         properties: {
           addressPrefix: '10.0.2.0/24'
         }
@@ -99,6 +120,11 @@ resource publicIp 'Microsoft.Network/publicIPAddresses@2023-09-01' = {
   name: publicIpName
   location: location
 
+  tags: {
+    Environment: 'Workshop'
+    Application: 'SpringBoot'
+  }
+
   sku: {
     name: 'Standard'
   }
@@ -109,17 +135,24 @@ resource publicIp 'Microsoft.Network/publicIPAddresses@2023-09-01' = {
 }
 
 //
-// NIC
+// Network Interface
 //
 resource nic 'Microsoft.Network/networkInterfaces@2023-09-01' = {
   name: nicName
   location: location
 
+  tags: {
+    Environment: 'Workshop'
+    Application: 'SpringBoot'
+  }
+
   properties: {
     ipConfigurations: [
       {
         name: 'ipconfig1'
+
         properties: {
+
           subnet: {
             id: resourceId(
               'Microsoft.Network/virtualNetworks/subnets',
@@ -139,6 +172,26 @@ resource nic 'Microsoft.Network/networkInterfaces@2023-09-01' = {
   }
 }
 
+//
+// Outputs
+//
 output vnetId string = vnet.id
+
+output webSubnetId string = resourceId(
+  'Microsoft.Network/virtualNetworks/subnets',
+  vnet.name,
+  webSubnetName
+)
+
+output dbSubnetId string = resourceId(
+  'Microsoft.Network/virtualNetworks/subnets',
+  vnet.name,
+  dbSubnetName
+)
+
+output nsgId string = nsg.id
+
 output nicId string = nic.id
+
 output publicIpId string = publicIp.id
+``
