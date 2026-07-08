@@ -26,7 +26,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2024-03-01' = {
   properties: {
 
     hardwareProfile: {
-      vmSize: 'Standard_B1ms'
+      vmSize: 'Standard_D2s_v3'
     }
 
     osProfile: {
