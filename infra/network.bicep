@@ -194,4 +194,3 @@ output nsgId string = nsg.id
 output nicId string = nic.id
 
 output publicIpId string = publicIp.id
-``
